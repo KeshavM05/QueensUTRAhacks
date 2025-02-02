@@ -185,8 +185,8 @@ void loop() {
 void goStraight() {
     digitalWrite(IN1, LOW);  // Left motor forward
     digitalWrite(IN2, HIGH);
-    digitalWrite(IN3, LOW);  // Right motor forward
-    digitalWrite(IN4, HIGH);
+    digitalWrite(IN3, HIGH);  // Right motor forward
+    digitalWrite(IN4, LOW);
     analogWrite(EN_A, motor_speed);
     analogWrite(EN_B, motor_speed);
 }
@@ -195,18 +195,18 @@ void goStraight() {
 void goBack() {
     digitalWrite(IN1, HIGH); // Left motor backward
     digitalWrite(IN2, LOW);
-    digitalWrite(IN3, HIGH); // Right motor backward
-    digitalWrite(IN4, LOW);
+    digitalWrite(IN3, LOW); // Right motor backward
+    digitalWrite(IN4, HIGH);
     analogWrite(EN_A, motor_speed);
     analogWrite(EN_B, motor_speed);
 }
 
 // Function to rotate left (90 degrees)
 void rotateLeft() {
-    digitalWrite(IN1, HIGH); // Left motor backward
-    digitalWrite(IN2, LOW);
-    digitalWrite(IN3, HIGH); // Right motor forward
-    digitalWrite(IN4, LOW);
+    digitalWrite(IN1, LOW); // Left motor backward
+    digitalWrite(IN2, HIGH);
+    digitalWrite(IN3, LOW); // Right motor forward
+    digitalWrite(IN4, HIGH);
     analogWrite(EN_A, motor_speed);
     analogWrite(EN_B, motor_speed);
     delay(500); // Adjust time for 90-degree turn
@@ -214,10 +214,10 @@ void rotateLeft() {
 
 // Function to rotate right (90 degrees)
 void rotateRight() {
-    digitalWrite(IN1, LOW);  // Left motor forward
-    digitalWrite(IN2, HIGH);
-    digitalWrite(IN3, LOW);  // Right motor backward
-    digitalWrite(IN4, HIGH);
+    digitalWrite(IN1, HIGH);  // Left motor forward
+    digitalWrite(IN2, LOW);
+    digitalWrite(IN3, HIGH);  // Right motor backward
+    digitalWrite(IN4, LOW);
     analogWrite(EN_A, motor_speed);
     analogWrite(EN_B, motor_speed);
     delay(500); // Adjust time for 90-degree turn
