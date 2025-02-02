@@ -67,7 +67,7 @@ void rotateRight() {
 void stop() {
     analogWrite(EN_A, 0);
     analogWrite(EN_B, 0);
-    delay(1000); // Adjust time for 90-degree turn
+    delay(1000);
 }
 
 void loop() {
