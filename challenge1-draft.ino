@@ -5,16 +5,24 @@ int IN2 = 8;  // Control pin for left motor backward
 int IN3 = 7;  // Control pin for right motor forward
 int IN4 = 6;  // Control pin for right motor backward
 int EN_B = 10; // Enable pin for right motor
-int S0 = 12; 
-int S1 = 2;
-int S2 = 3;//colour detection
-int S3 = 4;//colour detection
-int sensorOut = 5;
+int S0 = 12; //colour detection
+int S1 = 2; //colour detection
+int S2 = 3; //colour detection
+int S3 = 4; //colour detection
+int sensorOut = 5; //colour detection
 int trigPin = 13;//supersonic sensor
 int echoPin = 1;//supersonic sensor
 
 // Variables for motor speeds
 int motor_speed = 255;
+
+// Array to store time vals
+int timeArray[6];
+int yStart = 0;
+int xStart = 0;
+
+// Variable to store the turnDirection
+bool directionIsLeft = true;
 
 void setup() {
     Serial.begin(9600); // Start serial communication
@@ -54,7 +62,7 @@ void loop() {
 	Serial.print(" - Blue= ");
 	Serial.println(blue);
 
-  //-----------------------Supersonic setup-----------------------
+  //-----------------------Supersonic begin-----------------------
   long duration;
   int distance;
   
@@ -71,38 +79,101 @@ void loop() {
   // Calculate distance in cm
   distance = (duration / 2) / 29.1;
 
-  //------------------------------COMMANDS------------------------------
-    
-    if (red <500 && blue <500 && green <500){//if box is red, spin 180
-      goStraight();
-      long unsigned time_y = millis();
-      // if (red<blue && red<green){
-      //   Serial.print("Red detected");
-      // }
-      // else if (blue<red && blue<green){//if box is blue, turn left
-      //   Serial.print("Blue detected");
-      // }
-      // else if (green<red && green<blue){//if box is green, turn right
-      //   Serial.print("green detected");
-      // }
-    }
-    else{//if box is black, go straight
-      stop();
-      yPos = time_y/2;
-      turnLeft();
-      if (red <500 && blue <500 && green <500){
-        goStraight();
-        long unsigned time_x = millis();
-      }
-      else{
-        rotateLeft();
-        rotateLeft();
-      
-      }
-
-    }
-  }
+  //------------------------------Main Logic------------------------------
+  int count = 0;
   
+  red=getRed();
+  blue=getBlue();
+  green=getGreen();
+
+  while (count < 2){
+    goStraight();
+    if (red < 500 || blue < 500 || green < 500 && yStart == 0){
+      yStart = millis();
+    }
+    while (red < 500 || blue < 500 || green < 500){
+      goStraight();      
+    }    
+    stop();
+    if (count == 0){
+        timeArray[0] = millis() - yStart;     
+    }     
+    count++;
+
+    if (directionIsLeft){
+      rotateLeft();
+    }
+    else{
+      rotateRight();
+    }
+
+    // Move forward for 1 second before checking color again
+    goStraight();
+    delay(1000);
+    stop();
+
+    red=getRed();
+    blue=getBlue();
+    green=getGreen();
+
+    if (red < 500 || blue < 500 || green < 500 && xStart == 0){
+      xStart = millis();
+    }
+    else{
+      turnLeft();
+      turnLeft();
+      directionIsLeft = false;
+      goStraight();
+      if (red < 500 || blue < 500 || green < 500 && xStart == 0){
+        xStart = millis();
+      }      
+    }
+    red=getRed();
+    blue=getBlue();
+    green=getGreen();
+
+    while (red < 500 || blue < 500 || green < 500){
+      goStraight();      
+    }    
+    stop();
+    if (count == 1){
+        timeArray[1] = millis() - xStart;     
+    }     
+    count++;
+
+    if (directionIsLeft){
+      rotateLeft();
+    }
+    else{
+      rotateRight();
+    }
+     
+    unsigned long yCenter = millis();
+    while (millis() - yCenter < timeArray[0]) {
+        goStraight();
+    }
+    stop();
+    if (directionIsLeft){
+      rotateLeft();
+    }
+    else{
+      rotateRight();
+    }
+
+    unsigned long xCenter = millis();
+    while (millis() - xCenter < timeArray[1]) {
+        goStraight();
+    }
+    stop();
+    if (directionIsLeft){
+      rotateLeft();
+    }
+    else{
+      rotateRight();
+    }
+
+
+  }
 }
 
 //---------------------FUNCTIONS-------------
