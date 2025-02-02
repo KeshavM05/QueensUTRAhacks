@@ -38,7 +38,7 @@ int currentColorIndex = 0;
 
 // Function prototypes
 void detectStartPosition();
-void moveToNextTile();
+void goStraight();
 void turnLeft();
 void turnRight();
 bool detectObstacle();
@@ -46,7 +46,7 @@ void markWall();
 void checkColor();
 int readColorSensor();
 void avoidObstacle();
-void stopRobot();
+void stop();
 void expandGrid();
 void updateTileSize(float newDistance);
 
@@ -69,7 +69,7 @@ void setup() {
 
 // Main loop
 void loop() {
-    moveToNextTile();  // Move to next tile
+    goStraight();  // Move to next tile
 
     // Check for colors
     checkColor();
@@ -120,7 +120,7 @@ void detectStartPosition() {
 }
 
 // **Move to next tile based on estimated tile size**
-void moveToNextTile() {
+void goStraight() {
     // Clear previous position
     grid[posX][posY] = 1;
 
@@ -218,3 +218,82 @@ void markWall() {
         grid[wallX][wallY] = 2;
     }
 }
+
+void turnLeft(){
+     digitalWrite(IN1, LOW); // Left motor backward
+    digitalWrite(IN2, HIGH);
+    digitalWrite(IN3, LOW); // Right motor forward
+    digitalWrite(IN4, HIGH);
+    analogWrite(EN_A, motor_speed);
+    analogWrite(EN_B, motor_speed);
+    delay(500); // Adjust time for 90-degree turn
+}
+
+void turnRight(){
+    digitalWrite(IN1, HIGH);  // Left motor forward
+    digitalWrite(IN2, LOW);
+    digitalWrite(IN3, HIGH);  // Right motor backward
+    digitalWrite(IN4, LOW);
+    analogWrite(EN_A, motor_speed);
+    analogWrite(EN_B, motor_speed);
+    delay(500); // Adjust time for 90-degree turn
+}
+
+void stop(){
+    digitalWrite(IN1, LOW);  // Left motor forward
+    digitalWrite(IN2, LOW);
+    digitalWrite(IN3, LOW);  // Right motor backward
+    digitalWrite(IN4, LOW);
+    analogWrite(EN_A, 0);
+    analogWrite(EN_B, 0);
+    delay(1000); // Adjust time for 90-degree turn
+}
+
+void goStraight(){
+    digitalWrite(IN1, LOW);  // Left motor forward
+    digitalWrite(IN2, HIGH);
+    digitalWrite(IN3, HIGH);  // Right motor forward
+    digitalWrite(IN4, LOW);
+    analogWrite(EN_A, motor_speed);
+    analogWrite(EN_B, motor_speed);
+}
+
+void avoidObstacle() {
+    Serial.println("Obstacle detected! Finding alternative path...");
+
+    // Mark the wall in front of the robot
+    markWall();
+
+    // Try turning left first
+    turnLeft();
+    if (!detectObstacle()) {
+        Serial.println("Turned left successfully.");
+        moveToNextTile();
+        return;
+    }
+
+    // If left is blocked, turn right
+    turnRight(); // Face original direction
+    turnRight(); // Now facing right
+    if (!detectObstacle()) {
+        Serial.println("Turned right successfully.");
+        goStraight();
+        return;
+    }
+
+    // If still blocked, turn back to original direction and backtrack
+    turnLeft(); // Face original direction
+    Serial.println("No open space! Backtracking...");
+    moveBack();
+}
+
+void moveBack(){
+    digitalWrite(IN1, HIGH); // Left motor backward
+    digitalWrite(IN2, LOW);
+    digitalWrite(IN3, LOW); // Right motor backward
+    digitalWrite(IN4, HIGH);
+    analogWrite(EN_A, motor_speed);
+    analogWrite(EN_B, motor_speed);
+    delay(100);
+}
+
