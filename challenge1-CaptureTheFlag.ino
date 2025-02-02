@@ -86,19 +86,19 @@ void loop() {
   blue=getBlue();
   green=getGreen();
 
-  while (count < 2){
-    goStraight();
+  while (count < 2){ 
+    goStraight()
     if (red < 500 || blue < 500 || green < 500 && yStart == 0){
       yStart = millis();
     }
     while (red < 500 || blue < 500 || green < 500){
-      goStraight();      
+      goStraight(); //go straight as long as you see any colour except black
     }    
-    stop();
+    stop(); //stop once black
     if (count == 0){
-        timeArray[0] = millis() - yStart;     
+        timeArray[0] = millis() - yStart; //record time it took to traverse secant
     }     
-    count++;
+    count++; // add count to record how many turns the robot has taken
 
     if (directionIsLeft){
       rotateLeft();
@@ -116,10 +116,11 @@ void loop() {
     blue=getBlue();
     green=getGreen();
 
+    // check to see if the robot is turning towards centre or away from it
     if (red < 500 || blue < 500 || green < 500 && xStart == 0){
       xStart = millis();
     }
-    else{
+    else{ //if robot is turning away, take a u-turn and set turn direction to right
       turnLeft();
       turnLeft();
       directionIsLeft = false;
@@ -132,6 +133,7 @@ void loop() {
     blue=getBlue();
     green=getGreen();
 
+    // traverse the secant again and record the time 
     while (red < 500 || blue < 500 || green < 500){
       goStraight();      
     }    
@@ -147,9 +149,10 @@ void loop() {
     else{
       rotateRight();
     }
-     
+
+    // traverse to the y-center by traversing for half the time it took to travel y-secant
     unsigned long yCenter = millis();
-    while (millis() - yCenter < timeArray[0]) {
+    while (millis() - yCenter < (timeArray[0]/2)) {
         goStraight();
     }
     stop();
@@ -160,8 +163,9 @@ void loop() {
       rotateRight();
     }
 
+    // traverse to the x-center and actual center by traversing for half the time it took to travel x-secant
     unsigned long xCenter = millis();
-    while (millis() - xCenter < timeArray[1]) {
+    while (millis() - xCenter < (timeArray[1]/2)) {
         goStraight();
     }
     stop();
