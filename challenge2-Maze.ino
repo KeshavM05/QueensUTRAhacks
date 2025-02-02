@@ -72,7 +72,7 @@ void loop() {
   distance = (duration / 2) / 29.1;
 
   //------------------------------COMMANDS------------------------------
-  
+  goStraight();
   if(distance ==10){//if the sensor detects a destance of Xcm, the robot will do the following...
     stop();
     if (red <500 && blue <500 && green <500){//if box is red, spin 180
@@ -98,7 +98,10 @@ void loop() {
       }
     }
   else{//if box is black, go straight
-      goStraight();
+      stop();
+      goBack();
+      rotateLeft();
+      rotateLeft();
     }
   }
   
@@ -109,8 +112,8 @@ void loop() {
 void goStraight() {
     digitalWrite(IN1, LOW);  // Left motor forward
     digitalWrite(IN2, HIGH);
-    digitalWrite(IN3, LOW);  // Right motor forward
-    digitalWrite(IN4, HIGH);
+    digitalWrite(IN3, HIGH);  // Right motor forward
+    digitalWrite(IN4, LOW);
     analogWrite(EN_A, motor_speed);
     analogWrite(EN_B, motor_speed);
 }
@@ -119,18 +122,19 @@ void goStraight() {
 void goBack() {
     digitalWrite(IN1, HIGH); // Left motor backward
     digitalWrite(IN2, LOW);
-    digitalWrite(IN3, HIGH); // Right motor backward
-    digitalWrite(IN4, LOW);
+    digitalWrite(IN3, LOW); // Right motor backward
+    digitalWrite(IN4, HIGH);
     analogWrite(EN_A, motor_speed);
     analogWrite(EN_B, motor_speed);
+    delay(100);
 }
 
 // Function to rotate left (90 degrees)
 void rotateLeft() {
-    digitalWrite(IN1, HIGH); // Left motor backward
-    digitalWrite(IN2, LOW);
-    digitalWrite(IN3, HIGH); // Right motor forward
-    digitalWrite(IN4, LOW);
+    digitalWrite(IN1, LOW); // Left motor backward
+    digitalWrite(IN2, HIGH);
+    digitalWrite(IN3, LOW); // Right motor forward
+    digitalWrite(IN4, HIGH);
     analogWrite(EN_A, motor_speed);
     analogWrite(EN_B, motor_speed);
     delay(500); // Adjust time for 90-degree turn
@@ -138,10 +142,10 @@ void rotateLeft() {
 
 // Function to rotate right (90 degrees)
 void rotateRight() {
-    digitalWrite(IN1, LOW);  // Left motor forward
-    digitalWrite(IN2, HIGH);
-    digitalWrite(IN3, LOW);  // Right motor backward
-    digitalWrite(IN4, HIGH);
+    digitalWrite(IN1, HIGH);  // Left motor forward
+    digitalWrite(IN2, LOW);
+    digitalWrite(IN3, HIGH);  // Right motor backward
+    digitalWrite(IN4, LOW);
     analogWrite(EN_A, motor_speed);
     analogWrite(EN_B, motor_speed);
     delay(500); // Adjust time for 90-degree turn
@@ -154,7 +158,7 @@ void stop() {
     digitalWrite(IN4, LOW);
     analogWrite(EN_A, 0);
     analogWrite(EN_B, 0);
-    delay(500); // Adjust time for 90-degree turn
+    delay(1000); // Adjust time for 90-degree turn
 }
 
 
