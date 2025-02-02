@@ -7,7 +7,7 @@ int IN4 = 6;  // Control pin for right motor backward
 int EN_B = 10; // Enable pin for right motor
 
 // Variables for motor speeds
-int motor_speed = 255;
+int motor_speed = 299;
 
 void setup() {
     Serial.begin(9600); // Start serial communication
@@ -45,32 +45,36 @@ void goBack() {
 void rotateLeft() {
     digitalWrite(IN1, HIGH); // Left motor backward
     digitalWrite(IN2, LOW);
-    digitalWrite(IN3, HIGH); // Right motor forward
-    digitalWrite(IN4, LOW);
+    digitalWrite(IN3, LOW); // Right motor forward
+    digitalWrite(IN4, HIGH);
     analogWrite(EN_A, motor_speed);
     analogWrite(EN_B, motor_speed);
-    delay(500); // Adjust time for 90-degree turn
+    delay(270); // Adjust time for 90-degree turn
 }
 
 // Function to rotate right (90 degrees)
 void rotateRight() {
     digitalWrite(IN1, LOW);  // Left motor forward
     digitalWrite(IN2, HIGH);
-    digitalWrite(IN3, LOW);  // Right motor backward
-    digitalWrite(IN4, HIGH);
+    digitalWrite(IN3, HIGH);  // Right motor backward
+    digitalWrite(IN4, LOW);
     analogWrite(EN_A, motor_speed);
     analogWrite(EN_B, motor_speed);
-    delay(500); // Adjust time for 90-degree turn
+    delay(270); // Adjust time for 90-degree turn
+}
+
+// Function to stop
+void stop() {
+    analogWrite(EN_A, 0);
+    analogWrite(EN_B, 0);
+    delay(1000); // Adjust time for 90-degree turn
 }
 
 void loop() {
-    // Example usage:
-    goStraight();
-    delay(1000);
-    goBack();
-    delay(1000);
     rotateLeft();
-    delay(1000);
+    stop();
+    goStraight();
+    stop();
     rotateRight();
-    delay(1000);
+    stop();
 }
