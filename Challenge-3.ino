@@ -1,13 +1,21 @@
 #include <Arduino.h>
 
-// Ultrasonic sensor pins
-#define TRIG_PIN 9
-#define ECHO_PIN 10
-// Color sensor pin
-#define COLOR_SENSOR_PIN A0
-// Motor control pins
-#define MOTOR_LEFT 5
-#define MOTOR_RIGHT 6
+// Motor Pins
+int EN_A = 11; // Enable pin for left motor
+int IN1 = 9;  // Control pin for left motor forward
+int IN2 = 8;  // Control pin for left motor backward
+int IN3 = 7;  // Control pin for right motor forward
+int IN4 = 6;  // Control pin for right motor backward
+int EN_B = 10; // Enable pin for right motor
+int S0 = 12; //colour detection
+int S1 = 2; //colour detection
+int S2 = 3; //colour detection
+int S3 = 4; //colour detection
+int sensorOut = 5; //colour detection
+int trigPin = 13;//supersonic sensor
+int echoPin = 1;//supersonic sensor
+
+int motor_speed = 255;
 
 // Color Definitions
 #define RED 3
@@ -36,19 +44,6 @@ int direction = UP;  // Default facing up
 int colorSequence[] = {RED, GREEN, BLUE, GREEN, BLUE};
 int currentColorIndex = 0;
 
-// Function prototypes
-void detectStartPosition();
-void goStraight();
-void turnLeft();
-void turnRight();
-bool detectObstacle();
-void markWall();
-void checkColor();
-int readColorSensor();
-void avoidObstacle();
-void stop();
-void expandGrid();
-void updateTileSize(float newDistance);
 
 // Setup function
 void setup() {
@@ -120,32 +115,6 @@ void detectStartPosition() {
 }
 
 // **Move to next tile based on estimated tile size**
-void goStraight() {
-    // Clear previous position
-    grid[posX][posY] = 1;
-
-    // Move one tile forward
-    int newX = posX, newY = posY;
-    if (direction == UP) newX--;
-    if (direction == RIGHT) newY++;
-    if (direction == DOWN) newX++;
-    if (direction == LEFT) newY--;
-
-    // Expand grid if needed
-    if (newX >= gridSize || newY >= gridSize || newX < 0 || newY < 0) {
-        expandGrid();
-    }
-
-    // Measure actual movement distance
-    float measuredDistance = measureDistance();
-
-    // Update estimated tile size dynamically
-    updateTileSize(measuredDistance);
-
-    posX = newX;
-    posY = newY;
-    grid[posX][posY] = 5;
-}
 
 // **Dynamically update tile size if inconsistencies are found**
 void updateTileSize(float newDistance) {
@@ -196,12 +165,12 @@ void expandGrid() {
 
 // **Detect obstacles using ultrasonic sensor**
 bool detectObstacle() {
-    digitalWrite(TRIG_PIN, LOW);
+    digitalWrite(trigPin, LOW);
     delayMicroseconds(2);
-    digitalWrite(TRIG_PIN, HIGH);
+    digitalWrite(trigPin, HIGH);
     delayMicroseconds(10);
-    digitalWrite(TRIG_PIN, LOW);
-    long duration = pulseIn(ECHO_PIN, HIGH);
+    digitalWrite(trigPin, LOW);
+    long duration = pulseIn(echoPin, HIGH);
     int distance = duration * 0.034 / 2;
     return distance < 10;
 }
@@ -268,7 +237,7 @@ void avoidObstacle() {
     turnLeft();
     if (!detectObstacle()) {
         Serial.println("Turned left successfully.");
-        moveToNextTile();
+        goStraight();
         return;
     }
 
@@ -295,5 +264,64 @@ void moveBack(){
     analogWrite(EN_A, motor_speed);
     analogWrite(EN_B, motor_speed);
     delay(100);
+}
+
+long measureDistance(){
+  long duration;
+  long distance;
+  
+  // Trigger the sensor
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  
+  // Read the echo pin
+  duration = pulseIn(echoPin, HIGH);
+  
+  // Calculate distance in cm
+  distance = (duration / 2) / 29.1;
+
+  return distance;
+}
+
+void checkColor(){
+  int red=getRed();
+  int blue=getBlue();
+  int green=getGreen();
+}
+
+int getRed(){
+  digitalWrite(S2,LOW);
+	digitalWrite(S3,LOW);
+	// Define integer to represent Pulse Width
+	int PW;
+	// Read the output Pulse Width
+	PW = pulseIn(sensorOut, LOW);
+	// Return the value
+	return PW;
+}
+
+int getBlue(){
+	digitalWrite(S2,LOW);
+	digitalWrite(S3,HIGH);
+	// Define integer to represent Pulse Width
+	int PW;
+	// Read the output Pulse Width
+	PW = pulseIn(sensorOut, LOW);
+	// Return the value
+	return PW;
+}
+
+int getGreen(){
+	digitalWrite(S2,HIGH);
+	digitalWrite(S3,HIGH);
+	// Define integer to represent Pulse Width
+	int PW;
+	// Read the output Pulse Width
+	PW = pulseIn(sensorOut, LOW);
+	// Return the value
+	return PW;
 }
 
